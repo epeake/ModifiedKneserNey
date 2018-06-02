@@ -11,6 +11,7 @@ Note: This has not been optimized for very large data sets, but appears to train
 
 
 References: 
+      
       - Stanley F. Chen, Joshua Goodman (1999), ”An empirical study of smoothing techniques for language modeling,” in 
       Computer Speech and Language, vol. 13, Issue 4, pp. 359-394.
 
