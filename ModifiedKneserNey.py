@@ -127,7 +127,7 @@ class KneserNey:
         """
         n_grams = []
         for i in range(1, self.highest_order + 1):
-            n_grams.append(self._padded_email_ngrams(self.corpus, i))
+            n_grams.append(self._get_padded_ngrams(self.corpus, i))
         return n_grams
 
     def _calc_ngram_freqs(self, padded_ngrams):
@@ -514,12 +514,12 @@ class KneserNey:
         self.highest_order = highest_order
 
         padded_ngrams = self._get_all_padded_ngrams()
-        ngram_freqs  = self._calc_ngram_freqs(padded_ngrams)
+        ngram_freqs = self._calc_ngram_freqs(padded_ngrams)
         discounts = self._calc_discounts(ngram_freqs)
-        self.vocab = _get_vocab(padded_ngrams)
+        self.vocab = self._get_vocab(padded_ngrams)
 
         ngram_types = self._get_ngram_types(padded_ngrams)
-        unique_and_count = self._get_unique_and_count()
+        unique_and_count = self._get_unique_and_count(ngram_freqs)
         self._update_freqs(ngram_freqs, discounts, ngram_types, unique_and_count)  # turning freqs to probabilities
         self._handle_end_pad(ngram_freqs)
         self.ngram_probabilities = self._interpolate(ngram_freqs)
@@ -552,5 +552,9 @@ class KneserNey:
         all_ngrams = []
         all_ngrams.extend(ngrams(corpus.split(), self.highest_order))
         ngram_count = len(all_ngrams)
+
+        if not ngram_count:
+            print("Error: Not enough ngrams.  Ensure that corpus contains at least as many words as the highest order")
+            return float("-inf")    # this case is impossible
 
         return log_sum / ngram_count
