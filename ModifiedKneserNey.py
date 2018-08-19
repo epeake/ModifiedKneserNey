@@ -147,9 +147,7 @@ class KneserNey:
                 for n_grams in freqs.keys():
                     unique_degree_lower.add(n_grams[:-1])
 
-                to_add = []
-                for j in unique_degree_lower:
-                    to_add.append((*j, "<unk>"))
+                to_add = [(*j, "<unk>") for j in unique_degree_lower]
 
                 unknown_dict = dict(zip(to_add, [0] * len(to_add)))  # dictionary of all zeros as counts
                 unknown_dict.update(freqs)
@@ -291,14 +289,11 @@ class KneserNey:
         :return: List of two dictionaries, one for unique and one for count
         """
         unique_key = []
-        keys = []
 
         unique = {}
 
         # get number of unique contexts
-        for key in ngram_freqs[n - 1].keys():
-            keys.append(key[:-1])
-
+        keys = [key[:-1] for key in ngram_freqs[n - 1].keys()]
         key_number = 1
         key_index = 0
         previous_key = keys[key_index]
@@ -318,15 +313,12 @@ class KneserNey:
             unique.update({key: value})
 
         # now onto counts...
-        values = []
+        values = [val for val in ngram_freqs[n - 1].values()]
         sums = []
         count = {}
 
         for key, value in unique.items():
             count.update({key: value})
-
-        for val in ngram_freqs[n - 1].values():
-            values.append(val)
 
         key_number = 1
         val_sum = 0
@@ -456,9 +448,7 @@ class KneserNey:
         :return: ngram probabilities of highest order
         """
 
-        keys = []
-        for key in ngram_freqs[self.highest_order - 1]:
-            keys.append(key)
+        keys = [key for key in ngram_freqs[self.highest_order - 1]]
 
         all_values = []
         n_gram_cutoff = self.highest_order - 1  # makes it so that the ngram goes down in order
@@ -549,9 +539,7 @@ class KneserNey:
             if (probability_keys[i][-1],) not in self.vocab:
                 probability_keys[i] = *probability_keys[i][:-1], "<unk>"
 
-        scentence_probabilities = []
-        for key in probability_keys:
-            scentence_probabilities.append(self.ngram_probabilities.get(key))
+        scentence_probabilities = [self.ngram_probabilities.get(key) for key in probability_keys]
 
         for i in range(0, len(scentence_probabilities)):
             if scentence_probabilities[i] is None:  # this is the case for completely unknown
