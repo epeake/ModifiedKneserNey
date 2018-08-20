@@ -7,24 +7,26 @@ As part of an independent research project, focusing on natural language process
 3)	It is super easy to use
 
 ### Example
-'''
+
+'''python3
 # let *corpus* represent a large string of training data
+# let *scentence* represent a string that you wish to score
+
 kn = KneserNey()
 kn.train(corpus)
-
-# let *scentence* represent a string that you wish to score
 kn.log_score_per_ngram(scentence)
 
 # Done!:)
 '''
+
 **Note:** New features and versions, which may include bug fixes, to come.
 
 ---
 
 ## Requirements
 * Python 3, including:
-      * nltk
-      * numpy
+  * nltk
+  * numpy
 
 ## References: 
 * Stanley F. Chen, Joshua Goodman (1999), ”An empirical study of smoothing techniques for language modeling,” in Computer Speech and Language, vol. 13, Issue 4, pp. 359-394.
