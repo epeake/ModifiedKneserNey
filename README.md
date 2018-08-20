@@ -8,7 +8,7 @@ As part of an independent research project, focusing on natural language process
 
 ### Example
 
-'''python3
+```python3
 # let *corpus* represent a large string of training data
 # let *scentence* represent a string that you wish to score
 
@@ -17,7 +17,7 @@ kn.train(corpus)
 kn.log_score_per_ngram(scentence)
 
 # Done!:)
-'''
+```
 
 **Note:** New features and versions, which may include bug fixes, to come.
 
