@@ -19,6 +19,7 @@ class KneserNey:
     """
     A modified, interpolated Kneser-Ney smoothing object with corrections out-of-vocabulary words and small data sets
     """
+
     def __init__(self):
         """
         Constructor for KneserNey.
@@ -64,14 +65,14 @@ class KneserNey:
         :return: lemmatized tokens
         """
         treebank_tag = pos_tag(tokens)
-
-        word_tags = [self._get_wordnet_pos(treebank_tag[i][1]) for i in range(len(treebank_tag))]
-
+        word_tags = [self._get_wordnet_pos(
+            treebank_tag[i][1]) for i in range(len(treebank_tag))]
         lemmatized_words = []
         lmtzr = WordNetLemmatizer()
         for i in range(0, len(treebank_tag)):
             if word_tags[i] != "":    # if it has a tag useful to the lemmatizer
-                lemmatized_words.append(lmtzr.lemmatize(treebank_tag[i][0], word_tags[i]))
+                lemmatized_words.append(lmtzr.lemmatize(
+                    treebank_tag[i][0], word_tags[i]))
             else:
                 lemmatized_words.append(lmtzr.lemmatize(treebank_tag[i][0]))
 
@@ -149,7 +150,8 @@ class KneserNey:
 
                 to_add = [(*j, "<unk>") for j in unique_degree_lower]
 
-                unknown_dict = dict(zip(to_add, [0] * len(to_add)))  # dictionary of all zeros as counts
+                # dictionary of all zeros as counts
+                unknown_dict = dict(zip(to_add, [0] * len(to_add)))
                 unknown_dict.update(freqs)
 
                 freqs = {}     # sorting our dictionary
@@ -169,7 +171,8 @@ class KneserNey:
 
                 ngram_freqs.append(freqs)
 
-        # need to account for the end pad (probability that a sentence will end)
+        # need to account for the end pad (probability that a sentence will
+        # end)
         if self.highest_order > 1:
             end_of_scentence_count = 0
             for key in ngram_freqs[1]:
@@ -306,10 +309,12 @@ class KneserNey:
                 unique_key.append(key_number)
             key_index += 1
 
-        for i in range(1, max(unique_key) + 1):  # going to count the number of occurrences of each unique gram
+        # going to count the number of occurrences of each unique gram
+        for i in range(1, max(unique_key) + 1):
             index = unique_key.index(i)
             key = keys[index]
-            value = (unique_key.count(i) - 1)  # we subtract one because of our <unk>
+            # we subtract one because of our <unk>
+            value = (unique_key.count(i) - 1)
             unique.update({key: value})
 
         # now onto counts...
@@ -329,7 +334,9 @@ class KneserNey:
                 sums.append(val_sum)
                 val_sum = values[i]
                 key_number += 1
-        sums.append(val_sum)   # because the last val_sum will not be added because doesn't meet else condition
+        # because the last val_sum will not be added because doesn't meet else
+        # condition
+        sums.append(val_sum)
 
         index = 0
         for key in count:
@@ -347,14 +354,16 @@ class KneserNey:
         if self.highest_order > 1:  # because is a condition for using _calc_unique_and_count()
             unique_and_count = []
             for i in range(2, self.highest_order + 1):
-                unique_and_count.append(self._calc_unique_and_count(i, ngram_freqs))
+                unique_and_count.append(
+                    self._calc_unique_and_count(i, ngram_freqs))
 
             return unique_and_count
 
         else:
             return None
 
-    def _calc_adj_probs(self, n, ngram_freqs, discounts, ngram_types, unique_and_count):
+    def _calc_adj_probs(self, n, ngram_freqs, discounts,
+                        ngram_types, unique_and_count):
         """
         Calculates the discounted probabilities of each ngram
 
@@ -401,7 +410,8 @@ class KneserNey:
 
             return new_values
 
-    def _update_freqs(self, ngram_freqs, discounts, ngram_types, unique_and_count):
+    def _update_freqs(self, ngram_freqs, discounts,
+                      ngram_types, unique_and_count):
         """
         Converts our frequencies into probabilities
 
@@ -409,7 +419,13 @@ class KneserNey:
         """
         vals = []
         for i in range(1, self.highest_order + 1):
-            vals.append(self._calc_adj_probs(i, ngram_freqs, discounts, ngram_types, unique_and_count))
+            vals.append(
+                self._calc_adj_probs(
+                    i,
+                    ngram_freqs,
+                    discounts,
+                    ngram_types,
+                    unique_and_count))
 
         freqs = ngram_freqs
         for i in range(0, self.highest_order):
@@ -438,7 +454,8 @@ class KneserNey:
                 for key in ngram_freqs[i]:
                     if (key[-2:] != ('</s>', '</s>') and   # we need to filter these cases out for equal ngram set sizes
                             key[-2:] != ('</s>', '<unk>')):
-                        without_double_end.update({key: ngram_freqs[i].get(key)})
+                        without_double_end.update(
+                            {key: ngram_freqs[i].get(key)})
                 ngram_freqs[i] = without_double_end
 
     def _interpolate(self, ngram_freqs):
@@ -451,7 +468,8 @@ class KneserNey:
         keys = [key for key in ngram_freqs[self.highest_order - 1]]
 
         all_values = []
-        n_gram_cutoff = self.highest_order - 1  # makes it so that the ngram goes down in order
+        # makes it so that the ngram goes down in order
+        n_gram_cutoff = self.highest_order - 1
         for i in range(0, self.highest_order):
             first_terms = []
             second_terms = []
@@ -520,7 +538,9 @@ class KneserNey:
 
         ngram_types = self._get_ngram_types(padded_ngrams)
         unique_and_count = self._get_unique_and_count(ngram_freqs)
-        self._update_freqs(ngram_freqs, discounts, ngram_types, unique_and_count)  # turning freqs to probabilities
+        # turning freqs to probabilities
+        self._update_freqs(ngram_freqs, discounts,
+                           ngram_types, unique_and_count)
         self._handle_end_pad(ngram_freqs)
         self.ngram_probabilities = self._interpolate(ngram_freqs)
         self.av_unk_probability = self._find_av_unk_probability()
@@ -539,10 +559,12 @@ class KneserNey:
             if (probability_keys[i][-1],) not in self.vocab:
                 probability_keys[i] = *probability_keys[i][:-1], "<unk>"
 
-        scentence_probabilities = [self.ngram_probabilities.get(key) for key in probability_keys]
+        scentence_probabilities = [
+            self.ngram_probabilities.get(key) for key in probability_keys]
 
         for i in range(0, len(scentence_probabilities)):
-            if scentence_probabilities[i] is None:  # this is the case for completely unknown
+            # this is the case for completely unknown
+            if scentence_probabilities[i] is None:
                 scentence_probabilities[i] = log(self.av_unk_probability)
             else:
                 scentence_probabilities[i] = log(scentence_probabilities[i])
