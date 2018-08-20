@@ -6,9 +6,25 @@ As part of an independent research project, focusing on natural language process
 2)	It estimates discount values based on training data instead of setting them to a fixed value of the typically used .75
 3)	It is super easy to use
 
-Note: This has not been optimized for very large data sets, but appears to train quickly in   
-      practice.  New features and versions, which may include bug fixes, to come.
+### Example
+'''
+# let *corpus* represent a large string of training data
+kn = KneserNey()
+kn.train(corpus)
 
+# let *scentence* represent a string that you wish to score
+kn.log_score_per_ngram(scentence)
+
+# Done!:)
+'''
+**Note:** New features and versions, which may include bug fixes, to come.
+
+---
+
+## Requirements
+* Python 3, including:
+      * nltk
+      * numpy
 
 ## References: 
 * Stanley F. Chen, Joshua Goodman (1999), ”An empirical study of smoothing techniques for language modeling,” in Computer Speech and Language, vol. 13, Issue 4, pp. 359-394.
