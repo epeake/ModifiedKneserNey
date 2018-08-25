@@ -68,7 +68,8 @@ class ModifiedKneserNey:
         :return: lemmatized tokens
         """
         treebank_tag = pos_tag(tokens)
-        word_tags = [self._get_wordnet_pos(treebank_tag[i][1]) for i in range(len(treebank_tag))]
+        word_tags = [self._get_wordnet_pos(treebank_tag[i][1])
+                     for i in range(len(treebank_tag))]
         lemmatized_words = []
         lmtzr = WordNetLemmatizer()
         for i in range(0, len(treebank_tag)):
@@ -127,7 +128,8 @@ class ModifiedKneserNey:
 
         :return: padded ngrams
         """
-        return [self._get_padded_ngrams(self.corpus, i) for i in range(1, self.highest_order + 1)]
+        return [self._get_padded_ngrams(self.corpus, i)
+                for i in range(1, self.highest_order + 1)]
 
     def _calc_ngram_freqs(self, padded_ngrams):
         """
@@ -145,7 +147,8 @@ class ModifiedKneserNey:
                 for n_grams in freqs.keys():
                     unique_degree_lower.add(n_grams[:-1])
 
-                to_add = [(*j, "<unk>") for j in unique_degree_lower]
+                to_add = [(*j, "<unk>")
+                          for j in unique_degree_lower]
 
                 # dictionary of all zeros as counts
                 unknown_dict = dict(zip(to_add, [0] * len(to_add)))
@@ -153,7 +156,8 @@ class ModifiedKneserNey:
 
                 # sorting our dictionary
                 sorted_keys = sorted(unknown_dict)
-                freqs = {key: unknown_dict[key] for key in sorted_keys}
+                freqs = {key: unknown_dict[key]
+                         for key in sorted_keys}
                 ngram_freqs.append(freqs)
 
             else:
@@ -163,16 +167,15 @@ class ModifiedKneserNey:
 
                 # sorting our dictionary
                 sorted_keys = sorted(unknown_dict)
-                freqs = {key: unknown_dict[key] for key in sorted_keys}
+                freqs = {key: unknown_dict[key]
+                         for key in sorted_keys}
                 ngram_freqs.append(freqs)
 
         # need to account for the end pad (probability that a sentence will end)
         if self.highest_order > 1:
-            end_of_sentence_count = 0
-            for key in ngram_freqs[1]:
-                if key[-1] == "</s>":
-                    end_of_sentence_count += ngram_freqs[1].get(key)
-
+            # fun with generators
+            end_of_sentence_count = sum(ngram_freqs[1].get(key) for key in ngram_freqs[1]
+                                        if key[-1] == "</s>")
             ngram_freqs[0].update(({("</s>",): end_of_sentence_count}))
 
         return ngram_freqs
@@ -273,7 +276,8 @@ class ModifiedKneserNey:
 
         :return: list of distinct ngrams for each order
         """
-        return [self._calc_ngram_types(i, padded_ngrams) for i in range(1, self.highest_order + 1)]
+        return [self._calc_ngram_types(i, padded_ngrams)
+                for i in range(1, self.highest_order + 1)]
 
     def _calc_unique_and_count(self, n, ngram_freqs):
         """
@@ -287,7 +291,8 @@ class ModifiedKneserNey:
         unique = {}
 
         # get number of unique contexts
-        keys = [key[:-1] for key in ngram_freqs[n - 1].keys()]
+        keys = [key[:-1]
+                for key in ngram_freqs[n - 1].keys()]
         key_number = 1
         key_index = 0
         previous_key = keys[key_index]
@@ -339,7 +344,8 @@ class ModifiedKneserNey:
         :return: List of highest order - 1 lists with two elements, one for unique and one for count
         """
         if self.highest_order > 1:  # because n-1grams
-            return [self._calc_unique_and_count(i, ngram_freqs) for i in range(2, self.highest_order + 1)]
+            return [self._calc_unique_and_count(i, ngram_freqs)
+                    for i in range(2, self.highest_order + 1)]
 
         else:
             return None
@@ -353,10 +359,7 @@ class ModifiedKneserNey:
         """
         if n == 1:
             new_values = []
-            val_sum = 0
-            for val in ngram_freqs[0].values():
-                val_sum += val
-
+            val_sum = sum(val for val in ngram_freqs[0].values())
             discount = discounts[0]
             contexts = ngram_types[0]
             for key in ngram_freqs[0]:
@@ -395,11 +398,8 @@ class ModifiedKneserNey:
 
         :return: probabilities for each ngram (non-smoothed but discounted)
         """
-        vals = [self._calc_adj_probs(i,
-                                     ngram_freqs,
-                                     discounts,
-                                     ngram_types,
-                                     unique_and_count) for i in range(1, self.highest_order + 1)]
+        vals = [self._calc_adj_probs(i, ngram_freqs, discounts, ngram_types, unique_and_count)
+                for i in range(1, self.highest_order + 1)]
         for i in range(0, self.highest_order):
             if i == 0:
                 index = 0
@@ -531,7 +531,8 @@ class ModifiedKneserNey:
             if (probability_keys[i][-1],) not in self.vocab:
                 probability_keys[i] = *probability_keys[i][:-1], "<unk>"
 
-        sentence_probabilities = [self.ngram_probabilities.get(key) for key in probability_keys]
+        sentence_probabilities = [self.ngram_probabilities.get(key)
+                                  for key in probability_keys]
         for i in range(0, len(sentence_probabilities)):
 
             # this is the case for completely unknown
@@ -550,3 +551,13 @@ class ModifiedKneserNey:
             return float("-inf")    # this case is impossible
 
         return log_sum / ngram_count
+
+    def __repr__(self):
+        corpus_len = None
+        if self.corpus:
+            corpus_len = len(self.corpus.split())
+
+        return (f"{self.__class__.__name__}("
+                f"lemmatized = {self.lemmatized!r}, "
+                f"highest_order = {self.highest_order!r}, "
+                f"training_corpus_word_count = {corpus_len!r})")
