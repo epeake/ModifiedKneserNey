@@ -155,10 +155,8 @@ class ModifiedKneserNey:
                 unknown_dict.update(freqs)
 
                 # sorting our dictionary
-                sorted_keys = sorted(unknown_dict)
-                freqs = {key: unknown_dict[key]
-                         for key in sorted_keys}
-                ngram_freqs.append(freqs)
+                sorted(unknown_dict.items(), key=lambda x: x[1])
+                ngram_freqs.append(unknown_dict)
 
             else:
                 freqs = Counter(padded_ngrams[i])
@@ -166,10 +164,8 @@ class ModifiedKneserNey:
                 unknown_dict.update(freqs)
 
                 # sorting our dictionary
-                sorted_keys = sorted(unknown_dict)
-                freqs = {key: unknown_dict[key]
-                         for key in sorted_keys}
-                ngram_freqs.append(freqs)
+                sorted(unknown_dict.items(), key=lambda x: x[1])
+                ngram_freqs.append(unknown_dict)
 
         # need to account for the end pad (probability that a sentence will end)
         if self.highest_order > 1:
