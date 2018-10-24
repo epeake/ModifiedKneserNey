@@ -12,11 +12,11 @@ As part of an independent research project, focusing on natural language process
 
 ```python3
 # let corpus represent a large string of training data
-# let scentence represent a string that you wish to score
+# let sentence represent a string that you wish to score
 
 kn = ModifiedKneserNey()
 kn.train(corpus)
-kn.log_score_per_ngram(scentence)
+kn.log_score_per_ngram(sentence)
 
 # Done!:)
 ```
