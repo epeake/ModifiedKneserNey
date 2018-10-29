@@ -495,7 +495,7 @@ class ModifiedKneserNey:
 
         return probability_sum / count
 
-    def train(self, corpus, highest_order, lemmatize=True):
+    def train(self, corpus, highest_order=1, lemmatize=True):
         """
         Trains/initializes our Kneser-Ney object.
 
