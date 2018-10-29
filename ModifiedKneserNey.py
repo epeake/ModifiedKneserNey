@@ -24,12 +24,13 @@ class ModifiedKneserNey:
     Words are automatically lemmatized unless specified otherwise in train().
 
     """
+
     def __init__(self):
         """
         Empty constructor for KneserNey.
 
         """
-        self.lemmatized = None    # sees if user wants to lemmatize
+        self.lemmatized = None  # sees if user wants to lemmatize
         self.corpus = None
         self.highest_order = None
         self.ngram_probabilities = None
@@ -73,7 +74,7 @@ class ModifiedKneserNey:
         lemmatized_words = []
         lmtzr = WordNetLemmatizer()
         for i in range(0, len(treebank_tag)):
-            if word_tags[i] != "":    # if it has a tag useful to the lemmatizer
+            if word_tags[i] != "":  # if it has a tag useful to the lemmatizer
                 lemmatized_words.append(lmtzr.lemmatize(
                     treebank_tag[i][0], word_tags[i]))
 
@@ -264,7 +265,7 @@ class ModifiedKneserNey:
 
         :return: number of distinct ngrams
         """
-        return len(set(padded_ngrams[n - 1]))   # -1 due to indexing
+        return len(set(padded_ngrams[n - 1]))  # -1 due to indexing
 
     def _get_ngram_types(self, padded_ngrams):
         """
@@ -378,7 +379,11 @@ class ModifiedKneserNey:
 
             for key in ngram_freqs[n - 1]:
                 val = ngram_freqs[n - 1].get(key)
-                first_term = max(val - discount, 0) / our_sum.get(key[:-1])
+                try:
+                    first_term = max(val - discount, 0) / our_sum.get(key[:-1])
+                except ZeroDivisionError:
+                    print("More training data required and or a lower highest order")
+                    raise
                 second_term = discount * (unique.get(key[:-1]) / contexts)
                 first_terms.append(first_term)
                 second_terms.append(second_term)
@@ -421,10 +426,10 @@ class ModifiedKneserNey:
             for i in range(2, self.highest_order):
                 without_double_end = {}
                 for key in ngram_freqs[i]:
-                    if (key[-2:] != ('</s>', '</s>') and   # we need to filter these cases out for equal ngram set sizes
+                    if (key[-2:] != ('</s>', '</s>') and  # we need to filter these cases out for equal ngram set sizes
                             key[-2:] != ('</s>', '<unk>')):
                         without_double_end.update({key: ngram_freqs[i].get(key)})
-                        
+
                 ngram_freqs[i] = without_double_end
 
     def _interpolate(self, ngram_freqs):
@@ -435,7 +440,7 @@ class ModifiedKneserNey:
         """
         keys = [key for key in ngram_freqs[self.highest_order - 1]]
         all_values = []
-        
+
         # makes it so that the ngram goes down in order
         n_gram_cutoff = self.highest_order - 1
         for i in range(0, self.highest_order):
@@ -446,14 +451,14 @@ class ModifiedKneserNey:
                 val = ngram_freqs[i].get(key_of_interest)
                 if i == 0:
                     first_terms.append(val)
-                    
+
                 else:
                     first_terms.append(val[0])
                     second_terms.append(val[1])
-                    
+
             if i == 0:
                 all_values.append(first_terms)
-                
+
             else:
                 all_values.append([first_terms, second_terms])
 
@@ -463,7 +468,7 @@ class ModifiedKneserNey:
         for i in range(0, self.highest_order):
             if i == 0:
                 score = all_values[0]
-                
+
             else:
                 score = np_multiply(score, all_values[i][1]) + all_values[i][0]
 
@@ -544,7 +549,7 @@ class ModifiedKneserNey:
         ngram_count = len(all_ngrams)
         if not ngram_count:
             print("Error: Not enough ngrams.  Ensure that corpus contains at least as many words as the highest order")
-            return float("-inf")    # this case is impossible
+            return float("-inf")  # this case is impossible
 
         return log_sum / ngram_count
 
