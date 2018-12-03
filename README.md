@@ -1,6 +1,6 @@
 # ModifiedKneserNey
 
-As part of an independent research project, focusing on natural language processing, I implemented a modified, interpolated [Kneser-Ney smoothing](https://en.wikipedia.org/wiki/Kneser%E2%80%93Ney_smoothing) algorithm.  Looking online, I could not find a Kneser-Ney smoothing algorithm that met my exact needs, so I created my own.  
+As part of an independent research project in natural language processing, I implemented a modified, interpolated [Kneser-Ney smoothing](https://en.wikipedia.org/wiki/Kneser%E2%80%93Ney_smoothing) algorithm.  Looking online, I could not find a Kneser-Ney smoothing algorithm that met my exact needs, so I created my own.  
 
 ### What's special about my version:
 
