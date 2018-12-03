@@ -4,7 +4,7 @@ As part of an independent research project in natural language processing, I imp
 
 ### What's special about my version:
 
-1)	It has a correction for out-of-vocabulary words, necessary for scoring probabilities with unseen n-grams
+1)	It has a correction for out-of-vocabulary words, necessary for scoring probabilities for unseen n-grams
 2)	It estimates discount values based on training data instead of setting them to a fixed value of the typically used .75
 3)	It is super easy to use
 
