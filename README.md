@@ -21,8 +21,6 @@ kn.log_score_per_ngram(sentence)
 # Done!:)
 ```
 
-**Note:** New features and versions, which may include bug fixes, to come.
-
 ---
 
 ## Requirements
